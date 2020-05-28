@@ -1,35 +1,53 @@
 <script>
-  import { pieces } from "./store.js";
+  import { board, piecePlacedSFX } from "./store.js";
 
   const letters = ["a", "b", "c", "d", "e", "f", "g", "h"];
   const numbers = [1, 2, 3, 4, 5, 6, 7, 8];
 
-  const { w, b } = $pieces;
-  /*
-  let piecePositions = [
-    [b.r1, b.n1, b.b1, b.q, b.k, b.b2, b.n2, b.r2],
-    [b.p1, b.p2, b.p3, b.p4, b.p5, b.p6, b.p7, b.p8],
-    [null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null],
-    [w.p1, w.p2, w.p3, w.p4, w.p5, w.p6, w.p7, w.p8],
-    [w.r1, w.n1, w.b1, w.q, w.k, w.b2, w.n2, w.r2]
-  ];
-*/
   function color(numberIndex, letterIndex) {
     if (letterIndex % 2) {
       if (numberIndex % 2) {
-        return "white";
+        return "light";
       } else {
-        return "black";
+        return "dark";
       }
     } else {
       if (numberIndex % 2) {
-        return "black";
+        return "dark";
       } else {
-        return "white";
+        return "light";
       }
+    }
+  }
+
+  let boardSizeUnit = "vw";
+
+  function boardSize() {
+    if (window.innerWidth < window.innerHeight) {
+      boardSizeUnit = "vw";
+    } else {
+      boardSizeUnit = "vh";
+    }
+  }
+
+  boardSize();
+  window.addEventListener("resize", boardSize);
+
+  function allowDrop(e) {
+    e.preventDefault();
+  }
+
+  function drag(e) {
+    e.dataTransfer.setData("text", e.target.id);
+  }
+
+  function drop(e) {
+    e.preventDefault();
+    var data = e.dataTransfer.getData("text");
+    let dragged = document.getElementById(data);
+    if (e.target.id !== dragged.id) {
+      e.target.appendChild(dragged);
+      piecePlacedSFX.play();
     }
   }
 </script>
@@ -42,12 +60,14 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    background-color: #312e2b;
   }
 
   .board {
-    width: 80vw;
-    height: 80vw;
-    border: 1vw solid black;
+    user-select: none;
+    width: 70vw;
+    height: 70vw;
+    border-radius: 5px;
     display: grid;
     grid-template-columns: repeat(8, 12.5%);
     grid-template-rows: repeat(8, 12.5%);
@@ -58,6 +78,7 @@
     display: flex;
     justify-content: center;
     align-items: flex-end;
+    position: relative;
   }
 
   .piece {
@@ -70,27 +91,69 @@
     display: inline;
   }
 
-  .white {
+  .coordinate {
+    display: block;
+    position: absolute;
+    user-select: none;
+  }
+
+  .coordinate-number {
+    top: 5px;
+    left: 5px;
+  }
+
+  .coordinate-letter {
+    bottom: 5px;
+    right: 10px;
+  }
+
+  .light {
     background-color: rgb(255, 251, 242);
   }
 
-  .black {
+  .light .coordinate {
+    color: black;
+  }
+
+  .dark {
     background-color: rgb(66, 63, 63);
+  }
+
+  .dark .coordinate {
+    color: white;
   }
 </style>
 
 <main>
-  <div class="board">
-    {#each numbers.reverse() as number, i}
-      {#each letters as letter, j}
-        <div class="square {color(i, j)} {letter + number}" />
+  <div
+    class="board"
+    style="width: 70{boardSizeUnit}; height: 70{boardSizeUnit}">
+    {#each $board as row, rowIndex}
+      {#each row as column, columnIndex}
+        <div
+          id="{rowIndex}{columnIndex}"
+          class="square {color(rowIndex, columnIndex)}"
+          on:drop={drop}
+          on:dragover={allowDrop}>
+          {#if $board[rowIndex][columnIndex] !== undefined}
+            <img
+              id={$board[rowIndex][columnIndex].piece}
+              src={$board[rowIndex][columnIndex].image}
+              alt="piece"
+              class="piece"
+              draggable="true"
+              on:dragstart={drag} />
+          {/if}
+          {#if columnIndex === 0}
+            <div class="coordinate coordinate-number">{numbers[rowIndex]}</div>
+          {/if}
+          {#if rowIndex === 7}
+            <div class="coordinate coordinate-letter">
+              {letters[columnIndex]}
+            </div>
+          {/if}
+        </div>
       {/each}
     {/each}
   </div>
 </main>
-
-<!--
-          {#if piecePositions[i][j] !== null}
-            <img src={piecePositions[i][j].image} alt="piece" class="piece" />
-          {/if}
--->

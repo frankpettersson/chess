@@ -1,181 +1,288 @@
-import { writable } from 'svelte/store';
+import { writable, readable } from 'svelte/store';
 
-import wB from '../public/assets/svg/Chess_blt45.svg';
-import bB from '../public/assets/svg/Chess_bdt45.svg';
-import wK from '../public/assets/svg/Chess_klt45.svg';
-import bK from '../public/assets/svg/Chess_kdt45.svg';
-import wN from '../public/assets/svg/Chess_nlt45.svg';
-import bN from '../public/assets/svg/Chess_ndt45.svg';
-import wP from '../public/assets/svg/Chess_plt45.svg';
-import bP from '../public/assets/svg/Chess_pdt45.svg';
-import wQ from '../public/assets/svg/Chess_qlt45.svg';
-import bQ from '../public/assets/svg/Chess_qdt45.svg';
-import wR from '../public/assets/svg/Chess_rlt45.svg';
-import bR from '../public/assets/svg/Chess_rdt45.svg';
+import whitePawn from '../public/assets/svg/Chess_plt45.svg';
+import whiteKnight from '../public/assets/svg/Chess_nlt45.svg';
+import whiteBishop from '../public/assets/svg/Chess_blt45.svg';
+import whiteRook from '../public/assets/svg/Chess_rlt45.svg';
+import whiteQueen from '../public/assets/svg/Chess_qlt45.svg';
+import whiteKing from '../public/assets/svg/Chess_klt45.svg';
 
-export const pieces = writable({
-    w: {
-        p1: {
-            pos: [0][6],
+import blackPawn from '../public/assets/svg/Chess_pdt45.svg';
+import blackKnight from '../public/assets/svg/Chess_ndt45.svg';
+import blackBishop from '../public/assets/svg/Chess_bdt45.svg';
+import blackRook from '../public/assets/svg/Chess_rdt45.svg';
+import blackQueen from '../public/assets/svg/Chess_qdt45.svg';
+import blackKing from '../public/assets/svg/Chess_kdt45.svg';
+
+export const piecePlacedSFX = new Audio('assets/sfx/chess.mp3');
+
+export const board = writable([
+    [
+        {
+            piece: 'Black Rook 1',
+            type: 'rook',
+            row: 0,
+            column: 0,
             taken: false,
-            image: wP,
+            image: blackRook,
         },
-        p2: {
-            pos: [1][6],
+        {
+            piece: 'Black Knight 1',
+            type: 'knight',
+            row: 0,
+            column: 1,
             taken: false,
-            image: wP,
+            image: blackKnight,
         },
-        p3: {
-            pos: [2][6],
+        {
+            piece: 'Black Bishop 1',
+            type: 'bishop',
+            row: 0,
+            column: 2,
             taken: false,
-            image: wP,
+            image: blackBishop,
         },
-        p4: {
-            pos: [3][6],
+        {
+            piece: 'Black Queen',
+            type: 'queen',
+            row: 0,
+            column: 3,
             taken: false,
-            image: wP,
+            image: blackQueen,
         },
-        p5: {
-            pos: [4][6],
+        {
+            piece: 'Black King',
+            type: 'king',
+            row: 0,
+            column: 4,
             taken: false,
-            image: wP,
+            image: blackKing,
         },
-        p6: {
-            pos: [5][6],
+        {
+            piece: 'Black Bishop 2',
+            type: 'bishop',
+            row: 0,
+            column: 5,
             taken: false,
-            image: wP,
+            image: blackBishop,
         },
-        p7: {
-            pos: [6][6],
+        {
+            piece: 'Black Knight 2',
+            type: 'knight',
+            row: 0,
+            column: 6,
             taken: false,
-            image: wP,
+            image: blackKnight,
         },
-        p8: {
-            pos: [7][6],
+        {
+            piece: 'Black Rook 2',
+            type: 'rook',
+            row: 0,
+            column: 7,
             taken: false,
-            image: wP,
+            image: blackRook,
         },
-        r1: {
-            pos: [0][7],
+    ],
+    [
+        {
+            piece: 'Black Pawn 1',
+            type: 'pawn',
+            row: 1,
+            column: 0,
             taken: false,
-            image: wR,
+            image: blackPawn,
         },
-        n1: {
-            pos: [1][7],
+        {
+            piece: 'Black Pawn 2',
+            type: 'pawn',
+            row: 1,
+            column: 1,
             taken: false,
-            image: wN,
+            image: blackPawn,
         },
-        b1: {
-            pos: [2][7],
+        {
+            piece: 'Black Pawn 3',
+            type: 'pawn',
+            row: 1,
+            column: 2,
             taken: false,
-            image: wB,
+            image: blackPawn,
         },
-        q: {
-            pos: [3][7],
+        {
+            piece: 'Black Pawn 4',
+            type: 'pawn',
+            row: 1,
+            column: 3,
             taken: false,
-            image: wQ,
+            image: blackPawn,
         },
-        k: {
-            pos: [4][7],
+        {
+            piece: 'Black Pawn 5',
+            type: 'pawn',
+            row: 1,
+            column: 4,
             taken: false,
-            image: wK,
+            image: blackPawn,
         },
-        b2: {
-            pos: [5][7],
+        {
+            piece: 'Black Pawn 6',
+            type: 'pawn',
+            row: 1,
+            column: 5,
             taken: false,
-            image: wB,
+            image: blackPawn,
         },
-        n2: {
-            pos: [6][7],
+        {
+            piece: 'Black Pawn 7',
+            type: 'pawn',
+            row: 1,
+            column: 6,
             taken: false,
-            image: wK,
+            image: blackPawn,
         },
-        r2: {
-            pos: [7][7],
+        {
+            piece: 'Black Pawn 8',
+            type: 'pawn',
+            row: 1,
+            column: 7,
             taken: false,
-            image: wR,
+            image: blackPawn,
         },
-    },
-    b: {
-        p1: {
-            pos: [0][1],
+    ],
+    [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined],
+    [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined],
+    [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined],
+    [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined],
+    [
+        {
+            piece: 'White Pawn 1',
+            type: 'pawn',
+            row: 6,
+            column: 0,
             taken: false,
-            image: bP,
+            image: whitePawn,
         },
-        p2: {
-            pos: [1][1],
+        {
+            piece: 'White Pawn 2',
+            type: 'pawn',
+            row: 6,
+            column: 1,
             taken: false,
-            image: bP,
+            image: whitePawn,
         },
-        p3: {
-            pos: [2][1],
+        {
+            piece: 'White Pawn 3',
+            type: 'pawn',
+            row: 6,
+            column: 2,
             taken: false,
-            image: bP,
+            image: whitePawn,
         },
-        p4: {
-            pos: [3][1],
+        {
+            piece: 'White Pawn 4',
+            type: 'pawn',
+            row: 6,
+            column: 3,
             taken: false,
-            image: bP,
+            image: whitePawn,
         },
-        p5: {
-            pos: [4][1],
+        {
+            piece: 'White Pawn 5',
+            type: 'pawn',
+            row: 6,
+            column: 4,
             taken: false,
-            image: bP,
+            image: whitePawn,
         },
-        p6: {
-            pos: [5][1],
+        {
+            piece: 'White Pawn 6',
+            type: 'pawn',
+            row: 6,
+            column: 5,
             taken: false,
-            image: bP,
+            image: whitePawn,
         },
-        p7: {
-            pos: [6][1],
+        {
+            piece: 'White Pawn 7',
+            type: 'pawn',
+            row: 6,
+            column: 6,
             taken: false,
-            image: bP,
+            image: whitePawn,
         },
-        p8: {
-            pos: [7][1],
+        {
+            piece: 'White Pawn 8',
+            type: 'pawn',
+            row: 6,
+            column: 7,
             taken: false,
-            image: bP,
+            image: whitePawn,
         },
-        r1: {
-            pos: [0][0],
+    ],
+    [
+        {
+            piece: 'White Rook 1',
+            type: 'rook',
+            row: 7,
+            column: 0,
             taken: false,
-            image: bR,
+            image: whiteRook,
         },
-        n1: {
-            pos: [1][0],
+        {
+            piece: 'White Knight 1',
+            type: 'knight',
+            row: 7,
+            column: 1,
             taken: false,
-            image: bN,
+            image: whiteKnight,
         },
-        b1: {
-            pos: [2][0],
+        {
+            piece: 'White Bishop 1',
+            type: 'bishop',
+            row: 7,
+            column: 2,
             taken: false,
-            image: bB,
+            image: whiteBishop,
         },
-        q: {
-            pos: [3][0],
+        {
+            piece: 'White Queen',
+            type: 'queen',
+            row: 7,
+            column: 3,
             taken: false,
-            image: bQ,
+            image: whiteQueen,
         },
-        k: {
-            pos: [4][0],
+        {
+            piece: 'White King',
+            type: 'king',
+            row: 7,
+            column: 4,
             taken: false,
-            image: bK,
+            image: whiteKing,
         },
-        b2: {
-            pos: [5][0],
+        {
+            piece: 'White Bishop 2',
+            type: 'bishop',
+            row: 7,
+            column: 5,
             taken: false,
-            image: bB,
+            image: whiteBishop,
         },
-        n2: {
-            pos: [6][0],
+        {
+            piece: 'White Knight 2',
+            type: 'knight',
+            row: 7,
+            column: 6,
             taken: false,
-            image: bN,
+            image: whiteKnight,
         },
-        r2: {
-            pos: [7][0],
+        {
+            piece: 'White Rook 2',
+            type: 'rook',
+            row: 7,
+            column: 7,
             taken: false,
-            image: bR,
+            image: whiteRook,
         },
-    },
-});
+    ],
+]);
