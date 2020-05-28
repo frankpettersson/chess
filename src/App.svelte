@@ -2,7 +2,7 @@
   import { board, piecePlacedSFX } from "./store.js";
 
   const letters = ["a", "b", "c", "d", "e", "f", "g", "h"];
-  const numbers = [1, 2, 3, 4, 5, 6, 7, 8];
+  const numbers = [1, 2, 3, 4, 5, 6, 7, 8].reverse();
 
   function color(numberIndex, letterIndex) {
     if (letterIndex % 2) {
@@ -30,25 +30,62 @@
     }
   }
 
+  function getElByPropVal(myArray, prop, val) {
+    for (let i = 0; i < myArray.length; i++) {
+      for (let j = 0; j < myArray[i].length; j++)
+        if (myArray[i][j][prop] === val) {
+          return myArray[i][j];
+        }
+    }
+  }
+
   boardSize();
   window.addEventListener("resize", boardSize);
 
   function allowDrop(e) {
     e.preventDefault();
+    e.target.classList.add("selected");
   }
 
   function drag(e) {
+    //highlight legal moves
     e.dataTransfer.setData("text", e.target.id);
   }
 
   function drop(e) {
     e.preventDefault();
+    e.target.classList.remove("selected");
     var data = e.dataTransfer.getData("text");
     let dragged = document.getElementById(data);
-    if (e.target.id !== dragged.id) {
-      e.target.appendChild(dragged);
-      piecePlacedSFX.play();
+    let dropRow = parseInt(e.target.dataset.row);
+    let dropColumn = parseInt(e.target.dataset.column);
+
+    //get stored board piece object
+    let draggedPiece = board
+      .flat()
+      .find(e => (e.piece ? e.piece : null === data));
+
+    //the changes are,
+    //the img element gets moved to empty square
+    //so the board piece should aswell
+    if (e.target.id === dragged.id) {
+      return;
     }
+    if (board[dropRow][dropColumn] !== undefined) {
+    }
+    e.target.appendChild(dragged);
+    //update board store to reflect changes
+    draggedPiece.row.set(dropRow);
+    draggedPiece.column = dropColumn;
+    piecePlacedSFX.play();
+  }
+
+  function hoveredSquare(e) {
+    e.target.classList.add("selected");
+  }
+
+  function exitedSquare(e) {
+    e.target.classList.remove("selected");
   }
 </script>
 
@@ -81,8 +118,13 @@
     position: relative;
   }
 
+  .selected {
+    border: 3px solid blue;
+    border-radius: 5px;
+  }
+
   .piece {
-    height: 80%;
+    height: 100%;
     cursor: grab;
   }
 
@@ -128,20 +170,23 @@
   <div
     class="board"
     style="width: 70{boardSizeUnit}; height: 70{boardSizeUnit}">
-    {#each $board as row, rowIndex}
+    {#each board as row, rowIndex}
       {#each row as column, columnIndex}
         <div
-          id="{rowIndex}{columnIndex}"
+          id="{letters[columnIndex]}{numbers[rowIndex]}"
+          data-row={rowIndex}
+          data-column={columnIndex}
           class="square {color(rowIndex, columnIndex)}"
           on:drop={drop}
-          on:dragover={allowDrop}>
-          {#if $board[rowIndex][columnIndex] !== undefined}
+          on:dragover={allowDrop}
+          on:dragenter={hoveredSquare}
+          on:dragleave={exitedSquare}>
+          {#if board[rowIndex][columnIndex] !== undefined}
             <img
-              id={$board[rowIndex][columnIndex].piece}
-              src={$board[rowIndex][columnIndex].image}
+              id={board[rowIndex][columnIndex].piece}
+              src={board[rowIndex][columnIndex].image}
               alt="piece"
               class="piece"
-              draggable="true"
               on:dragstart={drag} />
           {/if}
           {#if columnIndex === 0}
